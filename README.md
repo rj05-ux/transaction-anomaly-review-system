@@ -1,10 +1,10 @@
 # Transaction Anomaly Review System
 
-A behavioral anomaly detection system that flags unusual digital payment transactions for manual review — built end-to-end, starting from a formal Business Requirements Document through to a working detection model and dashboard.
+A behavioral anomaly detection system that flags unusual digital payment transactions for manual review built end-to-end, starting from a formal Business Requirements Document through to a working detection model and dashboard.
 
 ## Business Problem
 
-Digital payment platforms currently catch fraudulent or erroneous transactions **reactively** — usually only after a customer complaint or chargeback. This project builds a **proactive** review system: every transaction is checked against the customer's own normal behavior (typical amount, typical location, typical time) and flagged for review if it looks out of place.
+Digital payment platforms currently catch fraudulent or erroneous transactions **reactively** usually only after a customer complaint or chargeback. This project builds a **proactive** review system: every transaction is checked against the customer's own normal behavior (typical amount, typical location, typical time) and flagged for review if it looks out of place.
 
 Full requirements are documented in [`BRD_Transaction_Anomaly_Review.pdf`](./BRD_Transaction_Anomaly_Review.pdf).
 
@@ -12,7 +12,7 @@ Full requirements are documented in [`BRD_Transaction_Anomaly_Review.pdf`](./BRD
 
 1. **Business Requirements Document** — defined the objective, stakeholders, business requirements (BR-1 to BR-6), and success metrics before writing any code.
 2. **Data** — generated a realistic synthetic dataset (since real transaction data isn't publicly available): ~77,000 transactions across 800 customers over 6 months, with ~1,660 behaviorally unusual transactions injected for testing.
-3. **Detection model** — combined:
+3. **Detection model** combined:
    - Per-customer amount deviation (z-score against their own history)
    - Off-home-city flag
    - Odd-hour flag (1–4 AM)
@@ -28,7 +28,7 @@ Full requirements are documented in [`BRD_Transaction_Anomaly_Review.pdf`](./BRD
 | Flagged for review | 1,660 (2.16%) |
 | Detection signals combined | 4 |
 
-The flag rate stayed consistent month-over-month (~2.0–2.3%), which matters for a real review team — a low, stable rate keeps the queue actionable instead of overwhelming.
+The flag rate stayed consistent month-over-month (~2.0–2.3%), which matters for a real review team a low, stable rate keeps the queue actionable instead of overwhelming.
 
 ## Dashboard
 
@@ -64,6 +64,8 @@ python make_charts.py       # generates chart PNGs
 ```
 
 Open `dashboard.html` directly in a browser to view the interactive dashboard.
+
+> Note: `transactions.csv` and `transactions_scored.csv` are not included in this repo since they're randomly generated. Run `generate_data.py` (and then `analysis.py`) locally to create them yourself.
 
 ## Tech Stack
 
