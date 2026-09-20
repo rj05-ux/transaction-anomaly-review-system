@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Transaction Review Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root {
+    --navy-950: #0B1B2B;
+    --navy-900: #10263D;
+    --navy-800: #163654;
+    --steel-600: #2E5C8A;
+    --steel-400: #6E97C0;
+    --teal-500: #2AB6A6;
+    --amber-500: #E0A72E;
+    --paper: #F5F7FA;
+    --paper-card: #FFFFFF;
+    --ink-900: #16232F;
+    --ink-500: #5B6B7A;
+    --line: #E2E8EF;
+    --radius: 10px;
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  * { box-sizing: inherit; }
+  html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #0B1420;
+      --paper-card: #121F30;
+      --ink-900: #EAF0F6;
+      --ink-500: #93A4B5;
+      --line: #223349;
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #0B1420;
+    --paper-card: #121F30;
+    --ink-900: #EAF0F6;
+    --ink-500: #93A4B5;
+    --line: #223349;
+  }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink-900);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .topbar {
+    background: linear-gradient(120deg, var(--navy-950), var(--navy-800));
+    color: #F2F6FA;
+    padding: 28px clamp(16px, 4vw, 48px) 34px;
+  }
+  .topbar .eyebrow {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    color: var(--teal-500);
+    margin: 0 0 6px;
+  }
+  .topbar h1 {
+    margin: 0 0 6px;
+    font-size: clamp(22px, 3.4vw, 30px);
+    font-weight: 800;
+    letter-spacing: -0.01em;
+  }
+  .topbar p {
+    margin: 0;
+    color: #B9C9D9;
+    font-size: 14px;
+    max-width: 640px;
+    line-height: 1.5;
+  }
+
+  .wrap {
+    max-width: 1160px;
+    margin: 0 auto;
+    padding: 0 clamp(16px, 4vw, 48px) 60px;
+  }
+
+  .kpi-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin-top: -34px;
+  }
+  @media (max-width: 760px) {
+    .kpi-row { grid-template-columns: repeat(2, 1fr); }
+  }
+  .kpi {
+    background: var(--paper-card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 18px 18px 16px;
+    box-shadow: 0 8px 20px rgba(11,27,43,0.08);
+  }
+  .kpi .label {
+    font-size: 12px;
+    color: var(--ink-500);
+    font-weight: 600;
+    text-transform: none;
+    margin-bottom: 8px;
+  }
+  .kpi .value {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: clamp(20px, 2.6vw, 26px);
+    font-weight: 600;
+    color: var(--navy-900);
+  }
+  :root[data-theme="dark"] .kpi .value, @media (prefers-color-scheme: dark) { }
+  .kpi .value.accent { color: var(--teal-500); }
+  .kpi .value.warn { color: var(--amber-500); }
+  .kpi .sub { font-size: 12px; color: var(--ink-500); margin-top: 4px; }
+
+  section { margin-top: 34px; }
+  .section-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 14px;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .section-head h2 {
+    font-size: 16px;
+    font-weight: 700;
+    margin: 0;
+    color: var(--navy-900);
+  }
+  :root[data-theme="dark"] .section-head h2 { color: #EAF0F6; }
+  .section-head .note { font-size: 12.5px; color: var(--ink-500); }
+
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 1.3fr 1fr;
+    gap: 16px;
+  }
+  @media (max-width: 820px) { .grid-2 { grid-template-columns: 1fr; } }
+
+  .card {
+    background: var(--paper-card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 18px;
+  }
+  .chart-box { position: relative; height: 260px; }
+  .chart-box.short { height: 220px; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  thead th {
+    text-align: left;
+    font-size: 11px;
+    color: var(--ink-500);
+    font-weight: 600;
+    padding: 0 10px 8px;
+    border-bottom: 1px solid var(--line);
+    white-space: nowrap;
+  }
+  tbody td {
+    padding: 9px 10px;
+    border-bottom: 1px solid var(--line);
+    white-space: nowrap;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12.5px;
+    color: var(--ink-900);
+  }
+  tbody td.cat { font-family: 'Inter', sans-serif; }
+  tbody tr:hover { background: rgba(46,92,138,0.06); }
+  .amt { color: var(--amber-500); font-weight: 600; }
+  .badge {
+    display: inline-block;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    padding: 2px 7px;
+    border-radius: 100px;
+    background: rgba(224,167,46,0.14);
+    color: #A9781B;
+  }
+  :root[data-theme="dark"] .badge { color: var(--amber-500); }
+
+  .table-scroll { overflow-x: auto; }
+
+  .flow {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    padding-bottom: 6px;
+  }
+  .flow-step {
+    flex: 0 0 auto;
+    min-width: 168px;
+    background: var(--paper-card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 14px;
+  }
+  .flow-step .n {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--teal-500);
+    margin-bottom: 6px;
+  }
+  .flow-step .t { font-size: 13px; font-weight: 700; margin-bottom: 4px; color: var(--navy-900); }
+  :root[data-theme="dark"] .flow-step .t { color: #EAF0F6; }
+  .flow-step .d { font-size: 12px; color: var(--ink-500); line-height: 1.4; }
+  .flow-arrow { align-self: center; color: var(--ink-500); font-size: 16px; flex: 0 0 auto; }
+
+  footer {
+    margin-top: 40px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+    font-size: 12px;
+    color: var(--ink-500);
+    line-height: 1.6;
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <p class="eyebrow">TRANSACTION REVIEW &middot; ANOMALY DETECTION</p>
+  <h1>Flagging unusual transactions before they become losses</h1>
+  <p>A behavioral scoring model that compares every transaction against a customer's own normal pattern &mdash; amount, time of day, and location &mdash; and cross-checks it against an unsupervised model, to prioritize a small, high-signal queue for manual review.</p>
+</div>
+
+<div class="wrap">
+
+  <div class="kpi-row">
+    <div class="kpi">
+      <div class="label">Transactions analyzed</div>
+      <div class="value" id="kpi-total">&mdash;</div>
+      <div class="sub" id="kpi-customers">&mdash;</div>
+    </div>
+    <div class="kpi">
+      <div class="label">Flagged for review</div>
+      <div class="value warn" id="kpi-flagged">&mdash;</div>
+      <div class="sub" id="kpi-rate">&mdash;</div>
+    </div>
+    <div class="kpi">
+      <div class="label">Detection signals</div>
+      <div class="value accent">4</div>
+      <div class="sub">amount &middot; location &middot; time &middot; ML model</div>
+    </div>
+    <div class="kpi">
+      <div class="label">Review window</div>
+      <div class="value">6 mo</div>
+      <div class="sub" id="kpi-period">&mdash;</div>
+    </div>
+  </div>
+
+  <section>
+    <div class="section-head">
+      <h2>Monthly flag volume vs. total transactions</h2>
+      <span class="note">Flag rate holds steady month to month &mdash; a sign the model isn't drifting</span>
+    </div>
+    <div class="card">
+      <div class="chart-box"><canvas id="chartMonthly"></canvas></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <h2>Where the signal comes from</h2>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <div class="chart-box short"><canvas id="chartMode"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="chart-box short"><canvas id="chartReasons"></canvas></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <h2>Sample of highest-priority flagged transactions</h2>
+      <span class="note">Ranked by deviation from the customer's own average</span>
+    </div>
+    <div class="card table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>Transaction</th><th>Customer</th><th>Timestamp</th><th>Amount (&#8377;)</th>
+            <th>Category</th><th>Mode</th><th>City</th><th>Home city</th><th>Score</th>
+          </tr>
+        </thead>
+        <tbody id="tbl-body"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <h2>How a flag gets resolved</h2>
+    </div>
+    <div class="flow">
+      <div class="flow-step"><div class="n">01</div><div class="t">Transaction scored</div><div class="d">Amount z-score, city match, and hour checked in real time</div></div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-step"><div class="n">02</div><div class="t">Review score &ge; 2</div><div class="d">Or the ML model independently agrees it's unusual</div></div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-step"><div class="n">03</div><div class="t">Queued for review</div><div class="d">Ops team sees it in a prioritized queue, not buried in raw logs</div></div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-step"><div class="n">04</div><div class="t">Outcome logged</div><div class="d">Confirmed / cleared decisions feed back into future tuning</div></div>
+    </div>
+  </section>
+
+  <footer>
+    Built on a synthetic dataset modeled on typical UPI/digital-payment behavior, for demonstration purposes.<br>
+    Full BRD, methodology, and source code accompany this dashboard.
+  </footer>
+
+</div>
+
+<script>
+const DATA = {"total_txns": 76890, "total_customers": 800, "flagged_total": 1660, "flag_rate": 2.16, "months": ["Jan 2026", "Feb 2026", "Mar 2026", "Apr 2026", "May 2026", "Jun 2026"], "monthly_flagged": [284, 245, 266, 290, 289, 286], "monthly_total": [13354, 11864, 13158, 12800, 13324, 12390], "modes": ["Credit Card", "Debit Card", "Net Banking", "UPI", "Wallet"], "mode_rates": [2.21, 2.05, 2.25, 2.15, 2.26], "mode_totals": [11526, 15582, 7747, 34380, 7655], "reasons": {"High-amount deviation": 650, "Off-home-city": 3551, "Odd hour (1-4 AM)": 2725, "ML model (Isolation Forest)": 1538}, "sample_flagged": [{"transaction_id": "TXN172879", "customer_id": "CUST0755", "timestamp": "2026-05-26 16:57:00", "amount": 57031.87, "merchant_category": "Insurance Premium", "payment_mode": "Debit Card", "city": "Bengaluru", "customer_home_city": "Bengaluru", "review_score": 2}, {"transaction_id": "TXN160009", "customer_id": "CUST0620", "timestamp": "2026-04-07 10:06:00", "amount": 8167.41, "merchant_category": "Recharge/DTH", "payment_mode": "Debit Card", "city": "Bengaluru", "customer_home_city": "Bengaluru", "review_score": 2}, {"transaction_id": "TXN126764", "customer_id": "CUST0279", "timestamp": "2026-01-06 14:32:00", "amount": 22706.76, "merchant_category": "Healthcare", "payment_mode": "UPI", "city": "Pune", "customer_home_city": "Pune", "review_score": 2}, {"transaction_id": "TXN167248", "customer_id": "CUST0696", "timestamp": "2026-05-01 10:20:00", "amount": 15655.4, "merchant_category": "E-commerce", "payment_mode": "UPI", "city": "Pune", "customer_home_city": "Pune", "review_score": 2}, {"transaction_id": "TXN120095", "customer_id": "CUST0207", "timestamp": "2026-03-14 11:54:00", "amount": 14178.58, "merchant_category": "Food Delivery", "payment_mode": "UPI", "city": "Delhi", "customer_home_city": "Delhi", "review_score": 2}, {"transaction_id": "TXN155529", "customer_id": "CUST0570", "timestamp": "2026-04-11 09:08:00", "amount": 12399.03, "merchant_category": "Travel", "payment_mode": "Net Banking", "city": "Chennai", "customer_home_city": "Chennai", "review_score": 2}, {"transaction_id": "TXN136836", "customer_id": "CUST0378", "timestamp": "2026-01-20 18:50:00", "amount": 30410.17, "merchant_category": "Utility Bills", "payment_mode": "Debit Card", "city": "Delhi", "customer_home_city": "Delhi", "review_score": 2}, {"transaction_id": "TXN101722", "customer_id": "CUST0017", "timestamp": "2026-03-29 17:24:00", "amount": 15442.76, "merchant_category": "Insurance Premium", "payment_mode": "Debit Card", "city": "Hyderabad", "customer_home_city": "Hyderabad", "review_score": 2}, {"transaction_id": "TXN142613", "customer_id": "CUST0439", "timestamp": "2026-04-16 12:52:00", "amount": 27188.14, "merchant_category": "Fuel", "payment_mode": "UPI", "city": "Mumbai", "customer_home_city": "Mumbai", "review_score": 2}, {"transaction_id": "TXN118672", "customer_id": "CUST0193", "timestamp": "2026-01-05 06:06:00", "amount": 12778.98, "merchant_category": "Utility Bills", "payment_mode": "Net Banking", "city": "Delhi", "customer_home_city": "Bengaluru", "review_score": 3}, {"transaction_id": "TXN137359", "customer_id": "CUST0384", "timestamp": "2026-06-22 18:44:00", "amount": 17860.5, "merchant_category": "P2P Transfer", "payment_mode": "UPI", "city": "Chennai", "customer_home_city": "Chennai", "review_score": 2}, {"transaction_id": "TXN111868", "customer_id": "CUST0124", "timestamp": "2026-05-25 13:03:00", "amount": 22650.2, "merchant_category": "P2P Transfer", "payment_mode": "UPI", "city": "Pune", "customer_home_city": "Pune", "review_score": 2}]}
+;
+
+document.getElementById('kpi-total').textContent = DATA.total_txns.toLocaleString('en-IN');
+document.getElementById('kpi-customers').textContent = DATA.total_customers + ' customers';
+document.getElementById('kpi-flagged').textContent = DATA.flagged_total.toLocaleString('en-IN');
+document.getElementById('kpi-rate').textContent = DATA.flag_rate + '% of volume';
+document.getElementById('kpi-period').textContent = DATA.months[0] + ' \u2013 ' + DATA.months[DATA.months.length-1];
+
+const tickColor = getComputedStyle(document.documentElement).getPropertyValue('--ink-500').trim() || '#5B6B7A';
+Chart.defaults.font.family = "Inter, sans-serif";
+Chart.defaults.color = tickColor;
+
+new Chart(document.getElementById('chartMonthly'), {
+  type: 'bar',
+  data: {
+    labels: DATA.months,
+    datasets: [
+      { label: 'Flagged', data: DATA.monthly_flagged, backgroundColor: '#E0A72E', borderRadius: 4, yAxisID: 'y1' },
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      y1: { position: 'left', title: { display: true, text: 'Flagged transactions' }, grid: { color: 'rgba(120,140,160,0.12)' } },
+      x: { grid: { display: false } }
+    }
+  }
+});
+
+new Chart(document.getElementById('chartMode'), {
+  type: 'bar',
+  data: {
+    labels: DATA.modes,
+    datasets: [{ label: 'Flag rate %', data: DATA.mode_rates, backgroundColor: '#2E5C8A', borderRadius: 4 }]
+  },
+  options: {
+    indexAxis: 'y',
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false }, title: { display: true, text: 'Flag rate (%) by payment mode', font: { size: 12.5, weight: '700' }, color: tickColor, align: 'start', padding: { bottom: 10 } } },
+    scales: { x: { grid: { color: 'rgba(120,140,160,0.12)' } }, y: { grid: { display: false } } }
+  }
+});
+
+const reasonLabels = Object.keys(DATA.reasons);
+const reasonValues = Object.values(DATA.reasons);
+new Chart(document.getElementById('chartReasons'), {
+  type: 'doughnut',
+  data: {
+    labels: reasonLabels,
+    datasets: [{ data: reasonValues, backgroundColor: ['#E0A72E', '#2AB6A6', '#6E97C0', '#16324F'], borderWidth: 0 }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 11 } } },
+      title: { display: true, text: 'Signals triggered (overlapping)', font: { size: 12.5, weight: '700' }, color: tickColor, align: 'start', padding: { bottom: 10 } }
+    }
+  }
+});
+
+const tbody = document.getElementById('tbl-body');
+DATA.sample_flagged.forEach(r => {
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td>${r.transaction_id}</td>
+    <td>${r.customer_id}</td>
+    <td>${r.timestamp}</td>
+    <td class="amt">${Number(r.amount).toLocaleString('en-IN', {maximumFractionDigits:0})}</td>
+    <td class="cat">${r.merchant_category}</td>
+    <td class="cat">${r.payment_mode}</td>
+    <td>${r.city}</td>
+    <td>${r.customer_home_city}</td>
+    <td><span class="badge">${r.review_score}</span></td>
+  `;
+  tbody.appendChild(tr);
+});
+</script>
+</body>
+</html>
