@@ -34,7 +34,7 @@ The flag rate stayed consistent month-over-month (~2.0–2.3%), which matters fo
 
 ![Dashboard screenshot](./dashboard_screenshot.png)
 
-*(Screenshot placeholder — see "How to Run" below to generate the live version, or [view it here](PASTE_YOUR_ARTIFACT_LINK_HERE) if hosted.)*
+Open [`dashboard.html`](./dashboard.html) directly (download and double-click, or view via GitHub Pages if enabled) to explore the interactive version.
 
 ## Project Structure
 
@@ -47,10 +47,10 @@ transaction-anomaly-review-system/
 ├── analysis.py
 ├── make_charts.py
 ├── dashboard.html
-└── charts/
-    ├── chart_monthly.png
-    ├── chart_mode.png
-    └── chart_reasons.png
+├── dashboard_screenshot.png
+├── chart_monthly.png
+├── chart_mode.png
+└── chart_reasons.png
 ```
 
 ## How to Run
