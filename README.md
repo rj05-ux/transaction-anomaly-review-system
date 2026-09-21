@@ -63,7 +63,6 @@ python analysis.py          # scores transactions -> transactions_scored.csv
 python make_charts.py       # generates chart PNGs
 ```
 
-Open `dashboard.html` directly in a browser to view the interactive dashboard.
 
 > Note: `transactions.csv` and `transactions_scored.csv` are not included in this repo since they're randomly generated. Run `generate_data.py` (and then `analysis.py`) locally to create them yourself.
 
