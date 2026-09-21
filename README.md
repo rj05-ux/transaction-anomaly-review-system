@@ -70,8 +70,3 @@ Open `dashboard.html` directly in a browser to view the interactive dashboard.
 ## Tech Stack
 
 Python · Pandas · NumPy · Scikit-learn (Isolation Forest) · Matplotlib · HTML/CSS/JS (Chart.js) for the dashboard
-
-## Author
-
-**Rutuja Jadhav**
-[LinkedIn](https://linkedin.com/in/rutuja-jadhav-592388321) · [GitHub](https://github.com/rj05-ux)
