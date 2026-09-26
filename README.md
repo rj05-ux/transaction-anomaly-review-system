@@ -36,23 +36,6 @@ The flag rate stayed consistent month-over-month (~2.0–2.3%), which matters fo
 
 Open [`dashboard.html`](./dashboard.html) directly (download and double-click, or view via GitHub Pages if enabled) to explore the interactive version.
 
-## Project Structure
-
-```
-transaction-anomaly-review-system/
-├── README.md
-├── BRD_Transaction_Anomaly_Review.pdf
-├── BRD_Transaction_Anomaly_Review.docx
-├── generate_data.py
-├── analysis.py
-├── make_charts.py
-├── dashboard.html
-├── dashboard_screenshot.png
-├── chart_monthly.png
-├── chart_mode.png
-└── chart_reasons.png
-```
-
 ## How to Run
 
 ```bash
