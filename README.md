@@ -34,8 +34,6 @@ The flag rate stayed consistent month-over-month (~2.0–2.3%), which matters fo
 
 ![Dashboard screenshot](./dashboard_screenshot.png)
 
-Open [`dashboard.html`](./dashboard.html) directly (download and double-click, or view via GitHub Pages if enabled) to explore the interactive version.
-
 ## How to Run
 
 ```bash
