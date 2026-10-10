@@ -47,6 +47,3 @@ python make_charts.py       # generates chart PNGs
 
 > Note: `transactions.csv` and `transactions_scored.csv` are not included in this repo since they're randomly generated. Run `generate_data.py` (and then `analysis.py`) locally to create them yourself.
 
-## Tech Stack
-
-Python · Pandas · NumPy · Scikit-learn (Isolation Forest) · Matplotlib · HTML/CSS/JS (Chart.js) for the dashboard
